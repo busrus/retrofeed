@@ -59,7 +59,7 @@ sudo chown -R $USER:$USER /opt/retrofeed
 Clone the repository:
 ```bash
 cd /opt/retrofeed/source
-git clone [repository-url] .
+git clone https://github.com/busrus/retrofeed.git
 ```
 
 ### 4. Mastodon API Token
