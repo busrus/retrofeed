@@ -11,13 +11,31 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.time.Instant;
 
 public class MastodonService {
     private final CloseableHttpClient httpClient;
     private final ObjectMapper mapper;
-    private final ConcurrentHashMap<String, Object> cache;
+    private final ConcurrentHashMap<String, CacheEntry> cache;
     private String instanceUrl;
     private String accessToken;
+    
+    private static final long CACHE_DURATION = 60 * 1000; // 60 seconds in milliseconds
+    
+    private class CacheEntry {
+        final List<String> data;
+        final long timestamp;
+        
+        CacheEntry(List<String> data) {
+            this.data = data;
+            this.timestamp = Instant.now().toEpochMilli();
+        }
+        
+        boolean isExpired() {
+            long now = Instant.now().toEpochMilli();
+            return now - timestamp > CACHE_DURATION;
+        }
+    }
     
     public MastodonService() {
         this.httpClient = HttpClients.createDefault();
@@ -36,11 +54,10 @@ public class MastodonService {
     }
     
     public List<String> getFeed() throws IOException {
-        // First check cache
-        @SuppressWarnings("unchecked")
-        List<String> cachedFeed = (List<String>) cache.get("current_feed");
-        if (cachedFeed != null) {
-            return cachedFeed;
+        // Check cache
+        CacheEntry cachedFeed = cache.get("current_feed");
+        if (cachedFeed != null && !cachedFeed.isExpired()) {
+            return cachedFeed.data;
         }
         
         // Fetch from API
@@ -65,7 +82,7 @@ public class MastodonService {
             }
             
             // Cache the formatted posts
-            cache.put("current_feed", formattedPosts);
+            cache.put("current_feed", new CacheEntry(formattedPosts));
             
             return formattedPosts;
         }
