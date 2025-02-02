@@ -1,6 +1,6 @@
 # RetroFeed
 
-RetroFeed is a Mastodon feed reader designed for vintage computers. It transforms your Mastodon timeline into a format compatible with text-based browsers like Contiki's web browser for 8-bit computers. Written and tested for my Apple IIe. Inspired by http://www.frogfind.com 
+RetroFeed is a Mastodon feed reader designed for vintage computers. It transforms your Mastodon timeline into a format compatible with curl or text-based browsers like Contiki's web browser for 8-bit computers. Written and tested for my Apple IIe. Inspired by http://www.frogfind.com 
 
 ![Alt text](retrofeed.jpg)
 
