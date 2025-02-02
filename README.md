@@ -7,6 +7,7 @@ RetroFeed is a Mastodon feed reader designed for vintage computers. It transform
 ## Features
 
 - Simple text-based interface compatible with minimal browsers
+- Smart formatting based on user agent header: plait text for curl, else HTML.
 - Mastodon timeline integration
 - Configurable for any Mastodon instance
 - Local network deployment for vintage computer access
