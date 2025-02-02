@@ -13,6 +13,9 @@ public class MastodonPost {
     
     @JsonProperty("created_at")
     private String createdAt;
+
+    @JsonProperty("reblog")
+    private MastodonPost reblog;
     
     // Nested Account class
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -36,19 +39,46 @@ public class MastodonPost {
     public void setAccount(Account account) { this.account = account; }
     public String getCreatedAt() { return createdAt; }
     public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
+    public MastodonPost getReblog() { return reblog; }
+    public void setReblog(MastodonPost reblog) { this.reblog = reblog; }
     
     public String toTextDisplay() {
         StringBuilder sb = new StringBuilder();
-        sb.append("From: ").append(account.getDisplayName())
-          .append(" (@").append(account.getUsername()).append(")\n");
-        sb.append("Date: ").append(createdAt).append("\n\n");
-        // Strip HTML from content
-        String plainContent = content.replaceAll("<[^>]*>", "")
+        
+        // Handle boosts (reblogs)
+        if (reblog != null) {
+            sb.append("From: ").append(account.getDisplayName())
+              .append(" (@").append(account.getUsername()).append(")")
+              .append("\n");
+            sb.append("Boosted:\n");
+            sb.append("  From: ").append(reblog.getAccount().getDisplayName())
+              .append(" (@").append(reblog.getAccount().getUsername()).append(")")
+              .append("\n");
+            sb.append("  Date: ").append(reblog.getCreatedAt()).append("\n\n");
+            
+            // Use the reblogged post's content
+            String boostContent = reblog.getContent().replaceAll("<[^>]*>", "")
                                    .replaceAll("&quot;", "\"")
                                    .replaceAll("&amp;", "&")
                                    .replaceAll("&lt;", "<")
                                    .replaceAll("&gt;", ">");
-        sb.append(plainContent);
+            sb.append("  ").append(boostContent.replace("\n", "\n  "));
+        } else {
+            // Regular post
+            sb.append("From: ").append(account.getDisplayName())
+              .append(" (@").append(account.getUsername()).append(")")
+              .append("\n");
+            sb.append("Date: ").append(createdAt).append("\n\n");
+            
+            // Strip HTML from content
+            String plainContent = content.replaceAll("<[^>]*>", "")
+                                   .replaceAll("&quot;", "\"")
+                                   .replaceAll("&amp;", "&")
+                                   .replaceAll("&lt;", "<")
+                                   .replaceAll("&gt;", ">");
+            sb.append(plainContent);
+        }
+        
         return sb.toString();
     }
 }
